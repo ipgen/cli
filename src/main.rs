@@ -6,9 +6,9 @@ use std::process::exit;
 use std::io::{self, Write};
 
 fn main() {
-    let matches = App::new("IPv6 Address Generator")
+    let matches = App::new("Unique IP Address Generator")
         .version(env!("CARGO_PKG_VERSION"))
-        .about("Generates unique and reproducible IPv6 addresses")
+        .about("Generates unique and reproducible IP addresses")
         .arg(Arg::with_name("name")
             .help("The name of the thing you are generating an IP address or subnet ID for")
             .required(true)
@@ -16,7 +16,7 @@ fn main() {
         .arg(Arg::with_name("network")
             .long("network")
             .short("n")
-            .help("IPv6 network eg fd52:f6b0:3162::/48. If network is not provided, the value \
+            .help("IP network eg fd52:f6b0:3162::/48 or 10.0.0.0/8. If network is not provided, the value \
                    returned will only be for a subnet ID.")
             .value_name("NETWORK"))
         .get_matches();

@@ -1,9 +1,9 @@
 [root]
-name = "ip6gen"
+name = "ipgen-cli"
 version = "0.0.1"
 dependencies = [
  "clap 2.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "ipgen 0.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ipgen 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -38,7 +38,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "ipgen"
-version = "0.0.1"
+version = "0.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "ipnetwork 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
