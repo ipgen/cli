@@ -19,8 +19,8 @@ export PATH="~/.cargo/bin:$PATH"
 
 ## Using
 
-To generate an IP address you need the network address you are going to use in [CIDR notation] (eg. fd9d:bb35:94bf::/48
-or 10.0.0.0/8) and an abitrary identifier of the thing you are generating the IP address for. The identifier must be unique
+To generate an IP address you need the network address you are going to use in [CIDR notation], eg. fd9d:bb35:94bf::/48
+or 10.0.0.0/8, and an abitrary identifier of the thing you are generating the IP address for. The identifier must be unique
 within the subnet it will be running.
 
 The general command for generating an IP address is:-
