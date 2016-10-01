@@ -34,13 +34,16 @@ Run `ipgen --help` for specific instructions.
 
 ```bash
 # Generate an IPv6 address for the first instance of Cassandra
-ipgen --network fd9d:bb35:94bf::/48 cassandra.1
+$ ipgen --network fd9d:bb35:94bf::/48 cassandra.1
+fd9d:bb35:94bf:c38a:ee1:c75d:8df3:c909
 
 # Generate an IPv4 address for Postgresql on a host named host1
-ipgen --network 10.0.0.0/8 postgresql.host1
+$ ipgen --network 10.0.0.0/8 postgresql.host1
+10.102.194.34
 
 # Generate an IPv6 subnet ID for Consul
-ipgen consul
+$ ipgen consul
+1211
 ```
 
 [Rust library]: https://github.com/ipgen/rust
