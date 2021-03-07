@@ -1,7 +1,7 @@
 [package]
 name = "ipgen-cli"
 description = "A command line tool for generating unique and reproducible IP addresses"
-version = "0.0.4-alpha.0"
+version = "1.0.0-alpha.0"
 license = "MIT/Apache-2.0"
 repository = "https://github.com/ipgen/cli"
 readme = "README.md"
@@ -13,5 +13,5 @@ edition = "2018"
 name = "ipgen"
 
 [dependencies]
-clap = "2.33.3"
-ipgen = "0.0.5"
+structopt = "0.3.21"
+ipgen = "1.0.1"

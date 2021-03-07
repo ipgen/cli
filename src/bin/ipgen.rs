@@ -1,41 +1,35 @@
-use clap::{Arg, App};
-use std::process::exit;
-use std::io::{self, Write};
+use structopt::StructOpt;
+
+/// Generates unique and reproducible IP addresses as per the IPGen Spec
+/// (https://github.com/ipgen/spec)
+#[derive(StructOpt, Debug)]
+#[structopt(name = "IPGen")]
+struct App {
+    /// The name of the thing you are generating an IP address or subnet ID for
+    #[structopt(name = "NAME")]
+    name: String,
+
+    /// IP network e.g. fd52:f6b0:3162::/48 or 10.0.0.0/8.
+    /// If provided, this program will print an IP address, if not, a subnet ID
+    /// will be printed instead.
+    #[structopt(short, long, name = "NETWORK")]
+    network: Option<String>,
+}
+
+fn run(app: App) -> ipgen::Result<()> {
+    match app.network {
+        Some(network) => {
+            let ip_addr = ipgen::ip(&app.name, network.parse()?)?;
+            println!("{}", ip_addr);
+        }
+        None => println!("{}", ipgen::subnet(&app.name)?),
+    }
+    Ok(())
+}
 
 fn main() {
-    let matches = App::new("Unique IP Address Generator")
-        .version(env!("CARGO_PKG_VERSION"))
-        .about("Generates unique and reproducible IP addresses")
-        .arg(Arg::with_name("name")
-            .help("The name of the thing you are generating an IP address or subnet ID for")
-            .required(true)
-            .value_name("NAME"))
-        .arg(Arg::with_name("network")
-            .long("network")
-            .short("n")
-            .help("IP network eg fd52:f6b0:3162::/48 or 10.0.0.0/8. If network is not provided, the value \
-                   returned will only be for a subnet ID.")
-            .value_name("NETWORK"))
-        .get_matches();
-    let name = matches.value_of("name").expect("name is required");
-    let network = match matches.value_of("network") {
-        Some(n) => n,
-        None => "",
-    };
-    if network.is_empty() {
-        println!("{}", ipgen::subnet(name));
-    } else {
-        match ipgen::ip(name, network) {
-            Ok(ip) => println!("{}", ip),
-            Err(msg) => {
-                match writeln!(&mut io::stderr(), "{}", msg) {
-                    Ok(_) => {
-                        // sucessfully printed error
-                    }
-                    Err(_) => println!("{}", msg),
-                };
-                exit(1);
-            }
-        };
-    };
+    if let Err(error) = run(App::from_args()) {
+        eprintln!("{}", error);
+        std::process::exit(1);
+    }
 }
