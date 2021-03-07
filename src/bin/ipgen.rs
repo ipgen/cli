@@ -1,6 +1,3 @@
-extern crate clap;
-extern crate ipgen;
-
 use clap::{Arg, App};
 use std::process::exit;
 use std::io::{self, Write};
