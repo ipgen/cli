@@ -13,5 +13,5 @@ edition = "2018"
 name = "ipgen"
 
 [dependencies]
-structopt = "0.3.21"
+structopt = "0.3.26"
 ipgen = "1.0.1"
