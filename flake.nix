@@ -6,14 +6,17 @@
   outputs = { self, nixpkgs, import-cargo }:
     let
 
+      binary = "ipgen";
+      package = "${binary}-cli";
+
       inherit (import-cargo.builders) importCargo;
 
     in {
 
-      defaultPackage.x86_64-linux =
+      packages.x86_64-linux.${package} =
         with import nixpkgs { system = "x86_64-linux"; };
-        stdenv.mkDerivation rec {
-          name = "ipgen";
+        stdenv.mkDerivation {
+          name = package;
           src = self;
 
           nativeBuildInputs = [
@@ -31,8 +34,14 @@
           '';
 
           installPhase = ''
-            install -Dm775 ./target/release/${name} $out/bin/${name}
+            install -Dm775 ./target/release/${binary} $out/bin/${binary}
           '';
+
+          meta = {
+            mainProgram = binary;
+          };
         };
+
+        defaultPackage.x86_64-linux = self.packages.x86_64-linux.${package};
     };
 }
