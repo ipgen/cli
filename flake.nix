@@ -1,33 +1,32 @@
 {
   description = "IPGen Command Line Tool";
 
-  inputs = { import-cargo.url = "github:edolstra/import-cargo"; };
+  inputs = {
+    import-cargo.url = "github:edolstra/import-cargo";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
 
-  outputs = { self, nixpkgs, import-cargo }:
-    let
+  outputs = { self, nixpkgs, import-cargo, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
 
-      binary = "ipgen";
-      package = "${binary}-cli";
+        binary = "ipgen";
+        package = "${binary}-cli";
 
-      inherit (import-cargo.builders) importCargo;
+        pkgs = nixpkgs.legacyPackages.${system};
 
-    in {
+        cargoHome = (import-cargo.builders.importCargo {
+          lockFile = ./Cargo.lock;
+          inherit pkgs;
+        }).cargoHome;
 
-      packages.x86_64-linux.${package} =
-        with import nixpkgs { system = "x86_64-linux"; };
-        stdenv.mkDerivation {
+      in with pkgs; {
+
+        packages.${package} = stdenv.mkDerivation {
           name = package;
           src = self;
 
-          nativeBuildInputs = [
-            (importCargo {
-              lockFile = ./Cargo.lock;
-              inherit pkgs;
-            }).cargoHome
-
-            rustc
-            cargo
-          ];
+          nativeBuildInputs = [ cargoHome rustc cargo ];
 
           buildPhase = ''
             cargo build --release --offline
@@ -42,6 +41,12 @@
           };
         };
 
-        defaultPackage.x86_64-linux = self.packages.x86_64-linux.${package};
-    };
+        defaultPackage = self.packages.${system}.${package};
+
+        devShell = mkShell {
+          inputsFrom = builtins.attrValues self.packages.${system};
+          buildInputs = [ cargo rust-analyzer clippy ];
+        };
+      }
+    );
 }
