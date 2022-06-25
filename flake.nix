@@ -1,52 +1,41 @@
 {
-  description = "IPGen Command Line Tool";
-
   inputs = {
-    import-cargo.url = "github:edolstra/import-cargo";
-    flake-utils.url = "github:numtide/flake-utils";
+    cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    flake-utils.follows = "cargo2nix/flake-utils";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, import-cargo, flake-utils }:
+  outputs = inputs:
+    with inputs;
     flake-utils.lib.eachDefaultSystem (system:
       let
-
-        binary = "ipgen";
-        package = "${binary}-cli";
-
-        pkgs = nixpkgs.legacyPackages.${system};
-
-        cargoHome = (import-cargo.builders.importCargo {
-          lockFile = ./Cargo.lock;
-          inherit pkgs;
-        }).cargoHome;
-
-      in with pkgs; {
-
-        packages.${package} = stdenv.mkDerivation {
-          name = package;
-          src = self;
-
-          nativeBuildInputs = [ cargoHome rustc cargo ];
-
-          buildPhase = ''
-            cargo build --release --offline
-          '';
-
-          installPhase = ''
-            install -Dm775 ./target/release/${binary} $out/bin/${binary}
-          '';
-
-          meta = {
-            mainProgram = binary;
-          };
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ cargo2nix.overlays.default ];
         };
 
-        defaultPackage = self.packages.${system}.${package};
+        cargoToml = (builtins.fromTOML (builtins.readFile ./Cargo.toml));
 
-        devShell = mkShell {
-          inputsFrom = builtins.attrValues self.packages.${system};
-          buildInputs = [ cargo rust-analyzer clippy ];
+        rustPkgs = pkgs.rustBuilder.makePackageSet {
+          rustVersion = "1.61.0";
+          packageFun = import ./Cargo.nix;
+          extraRustComponents = [ "rustfmt" "clippy" ];
+
+          packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
+            (pkgs.rustBuilder.rustLib.makeOverride {
+              name = cargoToml.package.name;
+              overrideAttrs = drv: {
+                meta.mainProgram = "ipgen";
+              };
+            })
+          ];
         };
-      }
-    );
+
+      in rec {
+        packages = {
+          ${cargoToml.package.name} =
+            (rustPkgs.workspace.${cargoToml.package.name} { }).bin;
+          default = packages.${cargoToml.package.name};
+        };
+      });
 }
