@@ -14,4 +14,4 @@ name = "ipgen"
 
 [dependencies]
 structopt = "0.3.26"
-ipgen = "1.0.1"
+ipgen = "1.0.2"
